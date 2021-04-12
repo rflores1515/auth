@@ -33,7 +33,7 @@
             ></b-form-input>
           </b-form-group>
           <b-button type="submit" variant="primary">LOGIN</b-button>
-          <b-button @click="current()">Current</b-button>
+          <b-alert :show="showAlert" variant="danger">{{this.error}}</b-alert>
         </b-form>
       </b-card>
     </b-card-group>
@@ -41,10 +41,9 @@
 </template>
 
 <script>
-import AuthService from '@/mixins/Authservice.js'
+import { mapActions } from "vuex";
 
-export default {
-  mixins: [AuthService],  
+export default { 
   data() {
     return {
       form: {
@@ -52,23 +51,24 @@ export default {
         password: "",
       },
       user: {},
+      showAlert: false,
+      error: ''
     };
   },
   methods: {
+    ...mapActions(["signInAction"]),
     onSubmit(event) {
       event.preventDefault();
-      this.login(this.form.email, this.form.password);
+      this.login();
     },
-    login(email, password) {
-       AuthService.methods.Login(email, password).then(response => {
-           this.user = response.user;
-       }, err => {
-           alert(err.message);
-       });
-    },
-    current() {
-        //console.log(firebase.auth().currentUser);
+    login() {
+      this.signInAction({email: this.form.email,password: this.form.password});
     }
   },
+  computed: {
+    getUser() {
+      return this.$store.getters.getUser;
+    }
+  }
 };
 </script>
